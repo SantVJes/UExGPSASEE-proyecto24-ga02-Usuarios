@@ -4,8 +4,18 @@ from typing import Tuple
 from typing import Union
 
 from openapi_server.models.get_all_perfiles200_response_inner import GetAllPerfiles200ResponseInner  # noqa: E501
-from openapi_server.models.usuario import Usuario  # noqa: E501
+from openapi_server.models.usuario import Usuario# noqa: E501
 from openapi_server import util
+from sqlalchemy.exc import IntegrityError
+
+
+from flask_sqlalchemy import SQLAlchemy
+from flask import jsonify, request, render_template, make_response
+
+db = SQLAlchemy()
+
+def import_db_controller(database):
+    global db
 
 
 def add_favorito(id_usuario, nombre_perfil, body):  # noqa: E501
@@ -42,7 +52,7 @@ def add_perfil(id_usuario, get_all_perfiles200_response_inner):  # noqa: E501
     return 'do some magic!'
 
 
-def add_usuario(usuario):  # noqa: E501
+def add_usuario():  # noqa: E501
     """Añadir un nuevo usuario a la aplicación
 
     Crea una nueva cuenta en la aplicación que estará asociada a un nuevo usuario # noqa: E501
@@ -52,9 +62,42 @@ def add_usuario(usuario):  # noqa: E501
 
     :rtype: Union[Usuario, Tuple[Usuario, int], Tuple[Usuario, int, Dict[str, str]]
     """
-    if connexion.request.is_json:
-        usuario = Usuario.from_dict(connexion.request.get_json())  # noqa: E501
-    return 'do some magic!'
+    if request.is_json:
+        data = request.get_json()
+
+        # Extraer y validar el objeto 'usuario'
+        usuario_data = data.get("usuario")
+        if not usuario_data:
+            return jsonify({"error": "No ay objeto."}), 400
+        
+        # Extraer y validar campos obligatorios del usuario
+        email = usuario_data.get("email")
+        password = usuario_data.get("password")
+        metodo_pago = usuario_data.get("metodo_pago")  # Opcional
+        status = usuario_data.get("status", True)      # Activo por defecto
+        perfiles = usuario_data.get("perfiles")        # Opcional, formato JSON
+        if not email or not password:
+            return jsonify({"error": "Faltan campos obligatorios"}), 400
+        
+        try:
+        # Crear el nuevo usuario utilizando la función create
+            nuevo_usuario = Usuario.create(
+                email=email,
+                password=password,
+                metodo_pago=metodo_pago,
+                status=status,
+                perfiles=perfiles
+              )
+            return jsonify({"Usuario Creado"}), 201  # Retorna el nuevo usuario creado
+
+        except IntegrityError:    
+            
+            return jsonify({"error": "El usuario con ese email ya existe"}), 409  
+            
+    return jsonify({"error": "La solicitud debe estar en formato JSON"}), 400
+
+     
+
 
 
 def delete_perfil(id_usuario, nombre_perfil):  # noqa: E501
