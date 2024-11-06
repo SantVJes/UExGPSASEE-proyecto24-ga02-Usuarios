@@ -3,8 +3,6 @@ import connexion
 from openapi_server import encoder
 from flask_sqlalchemy import SQLAlchemy
 from openapi_server.controllers.usuario_controller import import_db_controller
-from openapi_server.models.usuario import import_db_model
-
 
 def main():
     # Inicializa una instancia de la aplicación Connexion, especificando el directorio donde está el archivo OpenAPI.
@@ -31,7 +29,7 @@ def main():
     import_db_controller(db)
     
     # Importa el modelo de la base de datos, asegurando que las tablas y las estructuras estén definidas.
-    import_db_model(db)
+   
 
     # Ejecuta la aplicación en el puerto especificado (8080).
     app.run(port=8080)
