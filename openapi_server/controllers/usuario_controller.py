@@ -66,13 +66,17 @@ def add_usuario():  # noqa: E501
 
         # Extraer y validar el objeto 'usuario'
         usuario_data = data.get("usuario")
-
+        if not usuario_data:
+            return jsonify({"error": "No ay objeto."}), 400
+        
         # Extraer y validar campos obligatorios del usuario
         email = usuario_data.get("email")
         password = usuario_data.get("password")
         metodo_pago = usuario_data.get("metodo_pago")  # Opcional
         status = usuario_data.get("status", True)      # Activo por defecto
         perfiles = usuario_data.get("perfiles")        # Opcional, formato JSON
+        if not email or not password:
+            return jsonify({"error": "Faltan campos obligatorios"}), 400
 
         # Crear el nuevo usuario utilizando la función create
         
@@ -83,8 +87,7 @@ def add_usuario():  # noqa: E501
                 status=status,
                 perfiles=perfiles
             )
-    return jsonify(nuevo_usuario.to_dict()), 201
-    
+    return jsonify(nuevo_usuario.to_dict()), 201  
 
 
 
