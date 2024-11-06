@@ -15,66 +15,8 @@ db = SQLAlchemy()
 
 def import_db_controller(database):
     global db
-    db = database
 
 
-
-# Clase modelo para representar a un usuario en la base de datos.
-class Usuario(db.Model):
-    __tablename__ = 'usuarios'  # Nombre de la tabla en la base de datos.
-
-    # Definición de columnas en la tabla `usuarios`.
-    id_usuario = db.Column(db.Integer, primary_key=True, autoincrement=True)  # ID único para cada usuario.
-    email = db.Column(db.String(255), unique=True, nullable=False)  # Email del usuario (debe ser único y no puede ser nulo).
-    password = db.Column(db.String(255), nullable=False)  # Contraseña del usuario (requerida).
-    metodo_pago = db.Column(db.String(50), nullable=True)  # Método de pago opcional del usuario.
-    status = db.Column(db.Boolean, default=True)  # Estado del usuario (activo por defecto).
-    perfiles = db.Column(db.JSON, nullable=True)  # Datos de perfiles asociados al usuario, almacenados en formato JSON.
-
-    # Representación del objeto para depuración.
-    def __repr__(self):
-        return f'<Usuario {self.email}>'
-
-    # Método para convertir el objeto en un diccionario, útil para convertir el modelo a JSON.
-    def to_dict(self):
-        return {
-            "id_usuario": self.id_usuario,
-            "email": self.email,
-            "password": self.password,
-            "metodo_pago": self.metodo_pago,
-            "status": self.status,
-            "perfiles": self.perfiles
-        }
-
-    # Método de clase para crear y guardar un nuevo usuario en la base de datos.
-    @classmethod
-    def create(cls, email, password, metodo_pago=None, status=True, perfiles=None):
-        # Crea una instancia de `Usuario` con los datos proporcionados.
-        new_user = cls(
-            email=email,
-            password=password,
-            metodo_pago=metodo_pago,
-            status=status,
-            perfiles=perfiles
-        )
-
-        # Agrega el nuevo usuario a la sesión y guarda los cambios en la base de datos.
-        db.session.add(new_user)
-        db.session.commit()
-        
-        # Retorna el objeto creado.
-        return new_user
-
-
-
-
-
-
-
-
-
-
-'''
 def add_favorito(id_usuario, nombre_perfil, body):  # noqa: E501
     """Añadir un nuevo contenido al listado de favoritos de un perfil específico de un usuario por su ID
 
@@ -109,7 +51,7 @@ def add_perfil(id_usuario, get_all_perfiles200_response_inner):  # noqa: E501
     return 'do some magic!'
 
 
-def add_usuario(usuario):  # noqa: E501
+def add_usuario():  # noqa: E501
     """Añadir un nuevo usuario a la aplicación
 
     Crea una nueva cuenta en la aplicación que estará asociada a un nuevo usuario # noqa: E501
@@ -119,9 +61,31 @@ def add_usuario(usuario):  # noqa: E501
 
     :rtype: Union[Usuario, Tuple[Usuario, int], Tuple[Usuario, int, Dict[str, str]]
     """
-    if connexion.request.is_json:
-        usuario = Usuario.from_dict(connexion.request.get_json())  # noqa: E501
-    return 'do some magic!'
+    if request.is_json:
+        data = request.get_json()
+
+        # Extraer y validar el objeto 'usuario'
+        usuario_data = data.get("usuario")
+
+        # Extraer y validar campos obligatorios del usuario
+        email = usuario_data.get("email")
+        password = usuario_data.get("password")
+        metodo_pago = usuario_data.get("metodo_pago")  # Opcional
+        status = usuario_data.get("status", True)      # Activo por defecto
+        perfiles = usuario_data.get("perfiles")        # Opcional, formato JSON
+
+        # Crear el nuevo usuario utilizando la función create
+        
+        nuevo_usuario = Usuario.create(
+                email=email,
+                password=password,
+                metodo_pago=metodo_pago,
+                status=status,
+                perfiles=perfiles
+            )
+    return jsonify(nuevo_usuario.to_dict()), 201
+    
+
 
 
 def delete_perfil(id_usuario, nombre_perfil):  # noqa: E501
@@ -270,4 +234,3 @@ def upload_imagen(id_usuario, nombre_perfil, request_body):  # noqa: E501
     :rtype: Union[List[str], Tuple[List[str], int], Tuple[List[str], int, Dict[str, str]]
     """
     return 'do some magic!'
-'''
