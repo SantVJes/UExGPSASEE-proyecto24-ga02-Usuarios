@@ -6,6 +6,7 @@ from typing import Union
 from openapi_server.models.get_all_perfiles200_response_inner import GetAllPerfiles200ResponseInner  # noqa: E501
 from openapi_server.models.usuario import Usuario# noqa: E501
 from openapi_server import util
+from sqlalchemy.exc import IntegrityError
 
 
 from flask_sqlalchemy import SQLAlchemy
@@ -77,17 +78,25 @@ def add_usuario():  # noqa: E501
         perfiles = usuario_data.get("perfiles")        # Opcional, formato JSON
         if not email or not password:
             return jsonify({"error": "Faltan campos obligatorios"}), 400
-
-        # Crear el nuevo usuario utilizando la función create
         
-        nuevo_usuario = Usuario.create(
+        try:
+        # Crear el nuevo usuario utilizando la función create
+            nuevo_usuario = Usuario.create(
                 email=email,
                 password=password,
                 metodo_pago=metodo_pago,
                 status=status,
                 perfiles=perfiles
-            )
-    return jsonify(nuevo_usuario.to_dict()), 201  
+              )
+            return jsonify({"Usuario Creado"}), 201  # Retorna el nuevo usuario creado
+
+        except IntegrityError:    
+            
+            return jsonify({"error": "El usuario con ese email ya existe"}), 409  
+            
+    return jsonify({"error": "La solicitud debe estar en formato JSON"}), 400
+
+     
 
 
 
