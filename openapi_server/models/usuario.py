@@ -15,7 +15,6 @@ db = SQLAlchemy()
 
 def import_db_controller(database):
     global db
-    
 
 # Clase modelo para representar a un usuario en la base de datos.
 class Usuario(db.Model):
