@@ -42,6 +42,9 @@ class Usuario(db.Model):
             "status": self.status,
             "perfiles": self.perfiles
         }
+    
+    def verificar_contraseña(self, password):
+        return self.password == password  # 
 
     # Método de clase para crear y guardar un nuevo usuario en la base de datos.
     @classmethod
