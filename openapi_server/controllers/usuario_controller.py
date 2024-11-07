@@ -17,8 +17,7 @@ db = SQLAlchemy()
 def import_db_controller(database):
     global db
 
-    
-def iniciar_sesion():
+def post_iniciar_sesion():
     """Iniciar sesión de usuario en la aplicación
 
     Verifica las credenciales de un usuario y, si son válidas, inicia sesión.
@@ -41,9 +40,10 @@ def iniciar_sesion():
     usuario = Usuario.query.filter_by(email=email).first()
     
     # Verificar si el usuario existe y la contraseña es correcta
-    if usuario and usuario.verificar_contraseña(password):  # Suponiendo que 'verificar_contraseña' es un método en Usuario
+    if usuario and usuario.verificar_contraseña(password):  #'verificar_contraseña' es un método en Usuario
         # Generar token o mensaje de éxito
-        return jsonify({"mensaje": "Inicio de sesión exitoso"}), 200
+        return jsonify({"mensaje": "Inicio de sesión exitoso", "id_usuario": usuario.id_usuario}), 200
+    
     
     # Credenciales incorrectas
     return jsonify({"error": "Credenciales incorrectas"}), 401
