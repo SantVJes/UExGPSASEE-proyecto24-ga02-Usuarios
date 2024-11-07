@@ -16,7 +16,18 @@ db = SQLAlchemy()
 
 def import_db_controller(database):
     global db
-
+    
+    
+    
+def iniciar_sesion():
+    
+    data = request.get_json()
+    # Extraer y validar campos obligatorios
+    email = data.get("email")
+    password = data.get("password")
+    
+    
+    return 'is magic'
 
 def add_favorito(id_usuario, nombre_perfil, body):  # noqa: E501
     """Añadir un nuevo contenido al listado de favoritos de un perfil específico de un usuario por su ID
