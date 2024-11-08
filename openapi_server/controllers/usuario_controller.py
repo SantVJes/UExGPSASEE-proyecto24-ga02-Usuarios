@@ -17,6 +17,36 @@ db = SQLAlchemy()
 def import_db_controller(database):
     global db
 
+def post_iniciar_sesion():
+    """Iniciar sesión de usuario en la aplicación
+
+    Verifica las credenciales de un usuario y, si son válidas, inicia sesión.
+
+    :rtype: Union[Dict[str, str], Tuple[Dict[str, str], int]]
+    """
+    if not request.is_json:
+        return jsonify({"error": "La solicitud debe estar en formato JSON"}), 400
+    
+    data = request.get_json()
+    
+    # Extraer y validar campos obligatorios
+    email = data.get("email")
+    password = data.get("password")
+    
+    if not email or not password:
+        return jsonify({"error": "Faltan campos obligatorios"}), 400
+
+    # Intentar buscar el usuario en la base de datos
+    usuario = Usuario.query.filter_by(email=email).first()
+    
+    # Verificar si el usuario existe y la contraseña es correcta
+    if usuario and usuario.verificar_contraseña(password):  #'verificar_contraseña' es un método en Usuario
+        # Generar token o mensaje de éxito
+        return jsonify({"mensaje": "Inicio de sesión exitoso", "id_usuario": usuario.id_usuario}), 200
+    
+    
+    # Credenciales incorrectas
+    return jsonify({"error": "Credenciales incorrectas"}), 401
 
 def add_favorito(id_usuario, nombre_perfil, body):  # noqa: E501
     """Añadir un nuevo contenido al listado de favoritos de un perfil específico de un usuario por su ID

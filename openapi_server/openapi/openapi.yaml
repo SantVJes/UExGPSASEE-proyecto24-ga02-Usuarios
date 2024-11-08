@@ -11,6 +11,34 @@ tags:
     de tipo Netflix
   name: usuario
 paths:
+  /iniciar_sesion:
+    post:
+      description: Inicia sesión con email y contraseña
+      operationId: post_iniciar_sesion
+      responses:
+        "200":
+          description: Inicio de sesión exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                    example: "Inicio de sesión exitoso"
+                  id_usuario:
+                    type: integer
+                    example: 1
+        "400":
+          description: Solicitud incorrecta (falta JSON o campos)
+        "401":
+          description: Credenciales incorrectas
+        "500":
+          description: Error del servidor
+      summary: Inicia sesión de usuario con email y contraseña
+      tags:
+        - usuario
+      x-openapi-router-controller: openapi_server.controllers.usuario_controller
   /usuario:
     get:
       description: Retorna el conjunto de usuarios registrados en la aplicación
