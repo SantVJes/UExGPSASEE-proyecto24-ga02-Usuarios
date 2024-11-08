@@ -180,15 +180,16 @@ def get_all_usuarios():  # noqa: E501
     :rtype: Union[List[Usuario], Tuple[List[Usuario], int], Tuple[List[Usuario], int, Dict[str, str]]
     """
     try:
-        # Supongamos que tienes una función `get_all` en tu modelo Usuario para obtener todos los registros
-        usuarios = Usuario.get_all()  # Esta función debe devolver una lista de objetos Usuario
-        return usuarios  # Retorna la lista de usuarios
+        # Obtiene todos los registros de usuarios en la base de datos.
+        usuarios = Usuario.query.all()  # Usa SQLAlchemy para obtener todos los usuarios
+        # Convierte cada usuario en un diccionario usando `to_dict`.
+        usuarios_dict = [usuario.to_dict() for usuario in usuarios]
+        return usuarios_dict, 200  # Devuelve la lista de usuarios y el código HTTP 200 (OK)
 
     except Exception as e:
-        # Manejo de errores
-        error_msg = {"error": str(e)}
-        return [], 500, error_msg  # Devuelve una lista vacía, código 500 y el mensaje de error
-
+      # Manejo de errores en caso de fallo en la base de datos u otro problema
+        error_msg = {"error": f"Error al obtener usuarios: {str(e)}"}
+        return [], 500, error_msg  # Devuelve lista vacía, código 500 y mensaje de error
 
 
 
