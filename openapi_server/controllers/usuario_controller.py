@@ -179,7 +179,17 @@ def get_all_usuarios():  # noqa: E501
 
     :rtype: Union[List[Usuario], Tuple[List[Usuario], int], Tuple[List[Usuario], int, Dict[str, str]]
     """
-    return 'do some magic!'
+    try:
+        # Supongamos que tienes una función `get_all` en tu modelo Usuario para obtener todos los registros
+        usuarios = Usuario.get_all()  # Esta función debe devolver una lista de objetos Usuario
+        return usuarios  # Retorna la lista de usuarios
+
+    except Exception as e:
+        # Manejo de errores
+        error_msg = {"error": str(e)}
+        return [], 500, error_msg  # Devuelve una lista vacía, código 500 y el mensaje de error
+
+
 
 
 def get_favoritos(id_usuario, nombre_perfil):  # noqa: E501
