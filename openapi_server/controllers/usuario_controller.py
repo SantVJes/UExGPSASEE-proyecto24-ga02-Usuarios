@@ -65,7 +65,7 @@ def add_favorito(id_usuario, nombre_perfil, body):  # noqa: E501
     return 'do some magic!'
 
 
-def add_perfil(id_usuario, get_all_perfiles200_response_inner):  # noqa: E501
+def add_perfil(id_usuario):  # noqa: E501
     """Añadir un nuevo perfil a un usuario por su ID
 
     Añade un nuevo perfil a un usuario en función del identificador proporcionado # noqa: E501
@@ -77,10 +77,51 @@ def add_perfil(id_usuario, get_all_perfiles200_response_inner):  # noqa: E501
 
     :rtype: Union[None, Tuple[None, int], Tuple[None, int, Dict[str, str]]
     """
-    if connexion.request.is_json:
-        get_all_perfiles200_response_inner = GetAllPerfiles200ResponseInner.from_dict(connexion.request.get_json())  # noqa: E501
-    return 'do some magic!'
+    try:
+        if connexion.request.is_json:
+            # Convertir el cuerpo JSON recibido en un objeto
+            nuevoperfil = connexion.request.get_json()
+        else:
+            return jsonify({"error": "La solicitud no contiene JSON"}), 400
 
+        # Buscar el usuario por ID
+        usuario = db.session.query(Usuario).get(id_usuario)
+
+        # Verificar si el usuario existe
+        if usuario is None:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+
+        # Si perfiles es None, inicializamos el diccionario
+        if usuario.perfiles is None:
+            usuario.perfiles = {}
+
+        # Crear el nuevo perfil sin el nombre
+        perfil_sin_nombre = {key: value for key, value in nuevoperfil.items() if key != "nombre_perfil"}
+
+        # Crear un diccionario con los perfiles actuales y el nuevo perfil
+        perfiles_actualizados = usuario.perfiles.copy()  # Copiar perfiles existentes
+        perfiles_actualizados[nuevoperfil["nombre_perfil"]] = perfil_sin_nombre  # Agregar el nuevo perfil
+
+        # Actualizar el campo de perfiles con los perfiles combinados
+        usuario.perfiles = perfiles_actualizados
+
+        # Marcar el usuario como modificado
+        db.session.add(usuario)
+        db.session.flush()  # Forzar sincronización con la base de datos
+
+        # Confirmar los cambios en la base de datos
+        db.session.commit()
+
+        # Retornar una respuesta con el perfil agregado
+        return jsonify({
+            "message": "Perfil añadido exitosamente", 
+            "perfiles": usuario.perfiles
+             }), 200
+
+    except Exception as e:
+    # Manejo de errores
+        error_msg = {"error": f"Error al añadir el perfil: {str(e)}"}
+        return jsonify(error_msg), 500
 
 def add_usuario():  # noqa: E501
     """Añadir un nuevo usuario a la aplicación
@@ -142,7 +183,27 @@ def delete_perfil(id_usuario, nombre_perfil):  # noqa: E501
 
     :rtype: Union[None, Tuple[None, int], Tuple[None, int, Dict[str, str]]
     """
-    return 'do some magic!'
+    try:
+        # Buscar el usuario por ID
+        usuario = db.session.query(Usuario).get(id_usuario)
+        
+        # Eliminar el perfil del diccionario de perfiles
+        perfiles_actualizados = {k: v for k, v in usuario.perfiles.items() if k != nombre_perfil}
+
+        # Actualizar el campo perfiles con los perfiles actualizados
+        usuario.perfiles = perfiles_actualizados
+
+        # Realizar commit para guardar los cambios
+        db.session.commit()
+
+        return None, 204
+
+    except Exception as e:
+        # Manejo de errores en caso de fallo en la base de datos u otro problema
+        error_msg = {"error": f"Error al eliminar perfil: {str(e)}"}
+        return None, 500, error_msg
+
+
 
 
 def delete_usuario(id_usuario):  # noqa: E501
@@ -168,7 +229,18 @@ def get_all_perfiles(id_usuario):  # noqa: E501
 
     :rtype: Union[List[GetAllPerfiles200ResponseInner], Tuple[List[GetAllPerfiles200ResponseInner], int], Tuple[List[GetAllPerfiles200ResponseInner], int, Dict[str, str]]
     """
-    return 'do some magic!'
+    
+    try:
+        # Filtrar usuario por ID y obtener sus perfiles
+        usuario = Usuario.query.filter_by(id_usuario=id_usuario).first()
+        if usuario and usuario.perfiles:
+            return usuario.perfiles, 200  # Devuelve los perfiles en JSON y el código HTTP 200 (OK)
+    except Exception as e :
+        # Manejo de errores en caso de fallo en la base de datos u otro problema
+        error_msg = {"error": f"Error al obtener usuarios: {str(e)}"}
+        return [], 500, error_msg  # Devuelve lista vacía, código 500 y mensaje de error
+    
+    
 
 
 def get_all_usuarios():  # noqa: E501
@@ -227,7 +299,21 @@ def get_perfil(id_usuario, nombre_perfil):  # noqa: E501
 
     :rtype: Union[GetAllPerfiles200ResponseInner, Tuple[GetAllPerfiles200ResponseInner, int], Tuple[GetAllPerfiles200ResponseInner, int, Dict[str, str]]
     """
-    return 'do some magic!'
+    try:
+        # Filtrar usuario por ID y obtener sus perfiles
+        usuario = Usuario.query.filter_by(id_usuario=id_usuario).first()
+
+        if usuario.perfiles and nombre_perfil in usuario.perfiles:
+            # Retornar el perfil específico en función del nombre
+            perfil = usuario.perfiles[nombre_perfil]
+            return jsonify(perfil), 200  # Devuelve el perfil específico y código HTTP 200 (OK)
+        else:
+            return jsonify({"error": "Perfil no encontrado"}), 404  # Si el perfil no existe en los perfiles del usuario
+
+    except Exception as e:
+        # Manejo de errores en caso de fallo en la base de datos u otro problema
+        error_msg = {"error": f"Error al obtener el perfil: {str(e)}"}
+        return jsonify(error_msg), 500  # Devuelve mensaje de error y código HTTP 500
 
 
 def get_usuario_by_id(id_usuario):  # noqa: E501
@@ -243,7 +329,7 @@ def get_usuario_by_id(id_usuario):  # noqa: E501
     return 'do some magic!'
 
 
-def update_perfil(id_usuario, nombre_perfil, get_all_perfiles200_response_inner):  # noqa: E501
+def update_perfil(id_usuario, nombre_perfil):  # noqa: E501
     """Actualizar un perfil específico por su ID
 
     Actualiza un perfil específico de un usuario registrado en el sistema en función del identificador proporcionado # noqa: E501
@@ -257,9 +343,36 @@ def update_perfil(id_usuario, nombre_perfil, get_all_perfiles200_response_inner)
 
     :rtype: Union[GetAllPerfiles200ResponseInner, Tuple[GetAllPerfiles200ResponseInner, int], Tuple[GetAllPerfiles200ResponseInner, int, Dict[str, str]]
     """
-    if connexion.request.is_json:
-        get_all_perfiles200_response_inner = GetAllPerfiles200ResponseInner.from_dict(connexion.request.get_json())  # noqa: E501
-    return 'do some magic!'
+    try:
+        nuevos_datos = connexion.request.get_json()
+
+        # Buscar el usuario por ID
+        usuario = Usuario.query.filter_by(id_usuario=id_usuario).first() 
+        # Crear una copia completa de todos los perfiles del usuario
+        perfiles_actuales = usuario.perfiles
+
+        # Verificar si el perfil existe en la copia
+        # Actualizamos solo el perfil específico en la copia
+        perfiles_actuales.setdefault(nombre_perfil, {}).update(nuevos_datos)
+
+        # Reemplazar el diccionario completo en el usuario con la copia modificada
+        usuario.perfiles = perfiles_actuales
+
+        # Añadir explícitamente el usuario a la sesión (aunque no siempre sea necesario)
+        
+        # Confirmar los cambios en la base de datos
+        db.session.commit()  # Asegúrate de hacer commit para guardar los cambios
+
+        # Retornar una respuesta con el perfil actualizado
+        return jsonify({
+            "message": "Perfil actualizado exitosamente",
+            "perfil_actualizado": usuario.perfiles
+        }), 200
+
+    except Exception as e:
+    # Manejo de errores en caso de fallo en la base de datos u otro problema
+        error_msg = {"error": f"Error al actualizar el perfil: {str(e)}"}
+        return jsonify(error_msg), 500
 
 
 def update_usuario(id_usuario, usuario):  # noqa: E501
