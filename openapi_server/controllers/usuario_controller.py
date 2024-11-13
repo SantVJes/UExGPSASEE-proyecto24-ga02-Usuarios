@@ -78,22 +78,14 @@ def add_perfil(id_usuario):  # noqa: E501
     :rtype: Union[None, Tuple[None, int], Tuple[None, int, Dict[str, str]]
     """
     try:
-        if connexion.request.is_json:
+       
             # Convertir el cuerpo JSON recibido en un objeto
-            nuevoperfil = connexion.request.get_json()
-        else:
-            return jsonify({"error": "La solicitud no contiene JSON"}), 400
-
+        nuevoperfil = connexion.request.get_json()
+       
         # Buscar el usuario por ID
         usuario = db.session.query(Usuario).get(id_usuario)
 
-        # Verificar si el usuario existe
-        if usuario is None:
-            return jsonify({"error": "Usuario no encontrado"}), 404
-
-        # Si perfiles es None, inicializamos el diccionario
-        if usuario.perfiles is None:
-            usuario.perfiles = {}
+      
 
         # Crear el nuevo perfil sin el nombre
         perfil_sin_nombre = {key: value for key, value in nuevoperfil.items() if key != "nombre_perfil"}
@@ -307,9 +299,7 @@ def get_perfil(id_usuario, nombre_perfil):  # noqa: E501
             # Retornar el perfil específico en función del nombre
             perfil = usuario.perfiles[nombre_perfil]
             return jsonify(perfil), 200  # Devuelve el perfil específico y código HTTP 200 (OK)
-        else:
-            return jsonify({"error": "Perfil no encontrado"}), 404  # Si el perfil no existe en los perfiles del usuario
-
+      
     except Exception as e:
         # Manejo de errores en caso de fallo en la base de datos u otro problema
         error_msg = {"error": f"Error al obtener el perfil: {str(e)}"}
@@ -351,14 +341,14 @@ def update_perfil(id_usuario, nombre_perfil):  # noqa: E501
         # Crear una copia completa de todos los perfiles del usuario
         perfiles_actuales = usuario.perfiles
 
-        # Verificar si el perfil existe en la copia
+        
         # Actualizamos solo el perfil específico en la copia
         perfiles_actuales.setdefault(nombre_perfil, {}).update(nuevos_datos)
 
         # Reemplazar el diccionario completo en el usuario con la copia modificada
         usuario.perfiles = perfiles_actuales
 
-        # Añadir explícitamente el usuario a la sesión (aunque no siempre sea necesario)
+      
         
         # Confirmar los cambios en la base de datos
         db.session.commit()  # Asegúrate de hacer commit para guardar los cambios
