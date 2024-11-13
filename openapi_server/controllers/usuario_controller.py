@@ -28,7 +28,7 @@ def post_iniciar_sesion():
         return jsonify({"error": "La solicitud debe estar en formato JSON"}), 400
     
     data = request.get_json()
-    
+
     # Extraer y validar campos obligatorios
     email = data.get("email")
     password = data.get("password")
