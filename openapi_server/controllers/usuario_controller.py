@@ -78,42 +78,56 @@ def add_perfil(id_usuario):  # noqa: E501
     :rtype: Union[None, Tuple[None, int], Tuple[None, int, Dict[str, str]]
     """
     try:
-       
-            # Convertir el cuerpo JSON recibido en un objeto
+        # Convertir el cuerpo JSON recibido en un objeto
         nuevoperfil = connexion.request.get_json()
-       
+        
         # Buscar el usuario por ID
         usuario = db.session.query(Usuario).get(id_usuario)
-
-      
-
+        
+        # Verificar si el usuario existe
+        if not usuario:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+        
         # Crear el nuevo perfil sin el nombre
         perfil_sin_nombre = {key: value for key, value in nuevoperfil.items() if key != "nombre_perfil"}
-
+        
+        # Verificar si ya existe un perfil con el mismo nombre
+        if nuevoperfil["nombre_perfil"] in usuario.perfiles:
+            return jsonify({"error": "Ya existe un perfil con este nombre"}), 409
+        
         # Crear un diccionario con los perfiles actuales y el nuevo perfil
         perfiles_actualizados = usuario.perfiles.copy()  # Copiar perfiles existentes
         perfiles_actualizados[nuevoperfil["nombre_perfil"]] = perfil_sin_nombre  # Agregar el nuevo perfil
-
+        
         # Actualizar el campo de perfiles con los perfiles combinados
         usuario.perfiles = perfiles_actualizados
-
+        
         # Marcar el usuario como modificado
         db.session.add(usuario)
         db.session.flush()  # Forzar sincronización con la base de datos
-
+        
         # Confirmar los cambios en la base de datos
         db.session.commit()
-
+        
         # Retornar una respuesta con el perfil agregado
         return jsonify({
-            "message": "Perfil añadido exitosamente", 
+            "message": "Perfil añadido exitosamente",
             "perfiles": usuario.perfiles
-             }), 200
+        }), 200
+
+    except KeyError as e:
+        # Manejo de errores por clave faltante en el JSON
+        return jsonify({"error": f"Falta el campo requerido: {str(e)}"}), 400
+
+    except ValueError as e:
+        # Manejo de errores en el valor de los datos proporcionados
+        return jsonify({"error": f"Valor inválido en los datos proporcionados: {str(e)}"}), 400
 
     except Exception as e:
-    # Manejo de errores
+        # Manejo de errores generales
         error_msg = {"error": f"Error al añadir el perfil: {str(e)}"}
         return jsonify(error_msg), 500
+
 
 def add_usuario():  # noqa: E501
     """Añadir un nuevo usuario a la aplicación
@@ -179,6 +193,14 @@ def delete_perfil(id_usuario, nombre_perfil):  # noqa: E501
         # Buscar el usuario por ID
         usuario = db.session.query(Usuario).get(id_usuario)
         
+        # Verificar si el usuario existe
+        if not usuario:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+
+        # Verificar si el perfil a eliminar existe en el usuario
+        if nombre_perfil not in usuario.perfiles:
+            return jsonify({"error": "Perfil no encontrado"}), 404
+        
         # Eliminar el perfil del diccionario de perfiles
         perfiles_actualizados = {k: v for k, v in usuario.perfiles.items() if k != nombre_perfil}
 
@@ -188,12 +210,22 @@ def delete_perfil(id_usuario, nombre_perfil):  # noqa: E501
         # Realizar commit para guardar los cambios
         db.session.commit()
 
-        return None, 204
+        # Retornar respuesta exitosa sin contenido
+        return jsonify({"message": "Perfil eliminado exitosamente"}), 204
+
+    except KeyError as e:
+        # Manejo de errores por clave faltante
+        return jsonify({"error": f"Falta el campo requerido: {str(e)}"}), 400
+
+    except ValueError as e:
+        # Manejo de errores en el valor de los datos proporcionados
+        return jsonify({"error": f"Valor inválido en los datos proporcionados: {str(e)}"}), 400
 
     except Exception as e:
-        # Manejo de errores en caso de fallo en la base de datos u otro problema
-        error_msg = {"error": f"Error al eliminar perfil: {str(e)}"}
-        return None, 500, error_msg
+        # Manejo de errores generales
+        error_msg = {"error": f"Error al eliminar el perfil: {str(e)}"}
+        return jsonify(error_msg), 500
+
 
 
 
@@ -221,17 +253,34 @@ def get_all_perfiles(id_usuario):  # noqa: E501
 
     :rtype: Union[List[GetAllPerfiles200ResponseInner], Tuple[List[GetAllPerfiles200ResponseInner], int], Tuple[List[GetAllPerfiles200ResponseInner], int, Dict[str, str]]
     """
-    
     try:
         # Filtrar usuario por ID y obtener sus perfiles
         usuario = Usuario.query.filter_by(id_usuario=id_usuario).first()
-        if usuario and usuario.perfiles:
-            return usuario.perfiles, 200  # Devuelve los perfiles en JSON y el código HTTP 200 (OK)
-    except Exception as e :
-        # Manejo de errores en caso de fallo en la base de datos u otro problema
-        error_msg = {"error": f"Error al obtener usuarios: {str(e)}"}
-        return [], 500, error_msg  # Devuelve lista vacía, código 500 y mensaje de error
-    
+        
+        # Verificar si el usuario existe
+        if not usuario:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+        
+        # Verificar si el usuario tiene perfiles
+        if not usuario.perfiles:
+            return jsonify({"error": "No se encontraron perfiles para este usuario"}), 404
+        
+        # Devuelve los perfiles en JSON y el código HTTP 200 (OK)
+        return jsonify(usuario.perfiles), 200
+
+    except KeyError as e:
+        # Manejo de errores por clave faltante
+        return jsonify({"error": f"Falta el campo requerido: {str(e)}"}), 400
+
+    except ValueError as e:
+        # Manejo de errores en el valor de los datos proporcionados
+        return jsonify({"error": f"Valor inválido en los datos proporcionados: {str(e)}"}), 400
+
+    except Exception as e:
+        # Manejo de errores generales
+        error_msg = {"error": f"Error al obtener perfiles del usuario: {str(e)}"}
+        return jsonify(error_msg), 500
+
     
 
 
@@ -295,13 +344,28 @@ def get_perfil(id_usuario, nombre_perfil):  # noqa: E501
         # Filtrar usuario por ID y obtener sus perfiles
         usuario = Usuario.query.filter_by(id_usuario=id_usuario).first()
 
-        if usuario.perfiles and nombre_perfil in usuario.perfiles:
-            # Retornar el perfil específico en función del nombre
-            perfil = usuario.perfiles[nombre_perfil]
-            return jsonify(perfil), 200  # Devuelve el perfil específico y código HTTP 200 (OK)
-      
+        # Verificar si el usuario existe
+        if not usuario:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+
+        # Verificar si el usuario tiene perfiles y si el perfil especificado existe
+        if not usuario.perfiles or nombre_perfil not in usuario.perfiles:
+            return jsonify({"error": "Perfil no encontrado para el usuario"}), 404
+
+        # Retornar el perfil específico en función del nombre
+        perfil = usuario.perfiles[nombre_perfil]
+        return jsonify(perfil), 200  # Devuelve el perfil específico y código HTTP 200 (OK)
+
+    except KeyError as e:
+        # Manejo de errores por clave faltante en los datos
+        return jsonify({"error": f"Falta el campo requerido: {str(e)}"}), 400
+
+    except ValueError as e:
+        # Manejo de errores en el valor de los datos proporcionados
+        return jsonify({"error": f"Valor inválido en los datos proporcionados: {str(e)}"}), 400
+
     except Exception as e:
-        # Manejo de errores en caso de fallo en la base de datos u otro problema
+        # Manejo de errores generales
         error_msg = {"error": f"Error al obtener el perfil: {str(e)}"}
         return jsonify(error_msg), 500  # Devuelve mensaje de error y código HTTP 500
 
@@ -334,24 +398,31 @@ def update_perfil(id_usuario, nombre_perfil):  # noqa: E501
     :rtype: Union[GetAllPerfiles200ResponseInner, Tuple[GetAllPerfiles200ResponseInner, int], Tuple[GetAllPerfiles200ResponseInner, int, Dict[str, str]]
     """
     try:
+        # Obtener los nuevos datos del perfil desde el cuerpo de la solicitud JSON
         nuevos_datos = connexion.request.get_json()
 
         # Buscar el usuario por ID
-        usuario = Usuario.query.filter_by(id_usuario=id_usuario).first() 
-        # Crear una copia completa de todos los perfiles del usuario
+        usuario = Usuario.query.filter_by(id_usuario=id_usuario).first()
+        
+        # Verificar si el usuario existe
+        if not usuario:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+
+        # Verificar si el perfil especificado existe en los perfiles del usuario
+        if not usuario.perfiles or nombre_perfil not in usuario.perfiles:
+            return jsonify({"error": "Perfil no encontrado para el usuario"}), 404
+
+        # Crear una copia de los perfiles actuales del usuario
         perfiles_actuales = usuario.perfiles
 
-        
-        # Actualizamos solo el perfil específico en la copia
+        # Actualizar solo el perfil específico en la copia
         perfiles_actuales.setdefault(nombre_perfil, {}).update(nuevos_datos)
 
-        # Reemplazar el diccionario completo en el usuario con la copia modificada
+        # Asignar el diccionario actualizado de perfiles al usuario
         usuario.perfiles = perfiles_actuales
 
-      
-        
         # Confirmar los cambios en la base de datos
-        db.session.commit()  # Asegúrate de hacer commit para guardar los cambios
+        db.session.commit()
 
         # Retornar una respuesta con el perfil actualizado
         return jsonify({
@@ -359,10 +430,19 @@ def update_perfil(id_usuario, nombre_perfil):  # noqa: E501
             "perfil_actualizado": usuario.perfiles
         }), 200
 
+    except KeyError as e:
+        # Manejo de errores por clave faltante en los datos proporcionados
+        return jsonify({"error": f"Falta el campo requerido: {str(e)}"}), 400
+
+    except ValueError as e:
+        # Manejo de errores en el valor de los datos proporcionados
+        return jsonify({"error": f"Valor inválido en los datos proporcionados: {str(e)}"}), 400
+
     except Exception as e:
-    # Manejo de errores en caso de fallo en la base de datos u otro problema
+        # Manejo de errores generales
         error_msg = {"error": f"Error al actualizar el perfil: {str(e)}"}
         return jsonify(error_msg), 500
+
 
 
 def update_usuario(id_usuario, usuario):  # noqa: E501
