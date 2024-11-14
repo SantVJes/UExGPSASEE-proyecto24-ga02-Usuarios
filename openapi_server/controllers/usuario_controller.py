@@ -229,7 +229,6 @@ def delete_perfil(id_usuario, nombre_perfil):  # noqa: E501
 
 
 
-
 def delete_usuario(id_usuario):  # noqa: E501
     """Eliminar un usuario específico por su ID
 
@@ -244,14 +243,19 @@ def delete_usuario(id_usuario):  # noqa: E501
         # Buscar el usuario por ID
         usuario = db.session.query(Usuario).get(id_usuario)
 
+        # Verificar si el usuario existe
+        if usuario is None:
+            return {"error": "Usuario no encontrado"}, 404
+
         # Eliminar el usuario de la sesión
         db.session.delete(usuario)
 
         # Confirmar los cambios en la base de datos
         db.session.commit()
 
+    
         # Retornar una respuesta de éxito
-        return None, 204
+        return {"Usuario Eliminado"}, 204
 
     except Exception as e:
         # Manejo de errores en caso de fallo en la base de datos u otro problema
