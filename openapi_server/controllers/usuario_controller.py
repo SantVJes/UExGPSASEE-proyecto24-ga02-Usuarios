@@ -229,7 +229,6 @@ def delete_perfil(id_usuario, nombre_perfil):  # noqa: E501
 
 
 
-
 def delete_usuario(id_usuario):  # noqa: E501
     """Eliminar un usuario específico por su ID
 
@@ -240,7 +239,38 @@ def delete_usuario(id_usuario):  # noqa: E501
 
     :rtype: Union[None, Tuple[None, int], Tuple[None, int, Dict[str, str]]
     """
-    return 'do some magic!'
+    try:
+        # Obtener el JSON con el email
+        datos = request.get_json()
+        email = datos.get("email")
+        
+        if not email:
+            return {"error": "El email es requerido"}, 400
+
+        # Buscar el usuario por ID
+        usuario = db.session.query(Usuario).get(id_usuario)
+
+        # Verificar si el usuario existe
+        if usuario is None:
+            return {"error": "Usuario no encontrado"}, 404
+
+        # Comparar el email recibido con el del usuario a eliminar
+        if usuario.email != email:
+            return {"error": "El email proporcionado no coincide con el usuario a eliminar"}, 403
+
+        # Eliminar el usuario de la sesión
+        db.session.delete(usuario)
+
+        # Confirmar los cambios en la base de datos
+        db.session.commit()
+
+        # Retornar una respuesta de éxito
+        return {"message": "Usuario eliminado exitosamente"}, 204
+
+    except Exception as e:
+        # Manejo de otros errores
+        error_msg = {"error": f"Error al eliminar el usuario: {str(e)}"}
+        return error_msg, 500
 
 
 def get_all_perfiles(id_usuario):  # noqa: E501
