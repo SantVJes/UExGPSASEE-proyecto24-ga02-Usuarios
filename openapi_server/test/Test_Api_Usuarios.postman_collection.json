@@ -96,7 +96,7 @@
 			"response": []
 		},
 		{
-			"name": "New Request",
+			"name": "Elimina un usuario",
 			"request": {
 				"method": "DELETE",
 				"header": [],
@@ -110,6 +110,14 @@
 					}
 				},
 				"url": "http://127.0.0.1:8080/usuario/1"
+			},
+			"response": []
+		},
+		{
+			"name": "Actualiza la info de un usuario",
+			"request": {
+				"method": "PUT",
+				"header": []
 			},
 			"response": []
 		}
