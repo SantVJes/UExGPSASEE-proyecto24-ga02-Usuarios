@@ -240,6 +240,27 @@ def delete_usuario(id_usuario):  # noqa: E501
 
     :rtype: Union[None, Tuple[None, int], Tuple[None, int, Dict[str, str]]
     """
+    try:
+        # Buscar el usuario por ID
+        usuario = db.session.query(Usuario).get(id_usuario)
+
+        # Eliminar el usuario de la sesión
+        db.session.delete(usuario)
+
+        # Confirmar los cambios en la base de datos
+        db.session.commit()
+
+        # Retornar una respuesta de éxito
+        return None, 204
+
+    except Exception as e:
+        # Manejo de errores en caso de fallo en la base de datos u otro problema
+        error_msg = {"error": f"Error al eliminar el usuario: {str(e)}"}
+        return error_msg, 500
+    
+    
+    
+    
     return 'do some magic!'
 
 
