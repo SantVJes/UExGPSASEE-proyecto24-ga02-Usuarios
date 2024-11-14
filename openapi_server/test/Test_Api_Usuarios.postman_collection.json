@@ -1,0 +1,117 @@
+{
+	"info": {
+		"_postman_id": "6e26cb32-40d8-491a-8064-071f135a5156",
+		"name": "Test_Api_Usuarios",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "39514666"
+	},
+	"item": [
+		{
+			"name": "iniciar_sesion",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"Sanjesvel@hotmail.com\",\n    \"password\": \"Econtra95#\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:8080/iniciar_sesion"
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener la lista de todos los Usuarios",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:8080/usuario"
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener los perfiles de los Usuarios",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Elimina un perfil de Usuario especifico",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": "http://127.0.0.1:8080/usuario/1/valor2"
+			},
+			"response": []
+		},
+		{
+			"name": "Agrega otro perfil aun usuario",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nombre_perfil\": \"perfil4\",\n  \"campo_1\": \"valor_1\",\n  \"campo_2\": \"valor_2\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:8080/usuario/2/Perfiles"
+			},
+			"response": []
+		},
+		{
+			"name": "Retorna un perfil especifico mediante el id del usaurio y el nombre del perfi",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "/usuario/{idUsuario}/{nombrePerfil}:"
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar un perfil especifico",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"campo_1\": \"valor_2s\",\n  \"campo_2\": \"valor_1\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:8080/usuario/2/perfil2"
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"user@example.com\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:8080/usuario/1"
+			},
+			"response": []
+		}
+	]
+}
