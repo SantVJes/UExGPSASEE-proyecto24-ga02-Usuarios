@@ -64,6 +64,7 @@ class Usuario(db.Model):
         
         # Retorna el objeto creado.
         return new_user
+    
 
 
 
