@@ -475,7 +475,7 @@ def update_perfil(id_usuario, nombre_perfil):  # noqa: E501
 
 
 
-def update_usuario(id_usuario, usuario):  # noqa: E501
+def update_usuario(id_usuario):  # noqa: E501
     """Actualizar un usuario específico por su ID
 
     Actualiza la información de un usuario registrado en función del identificador proporcionado # noqa: E501
@@ -488,8 +488,36 @@ def update_usuario(id_usuario, usuario):  # noqa: E501
     :rtype: Union[Usuario, Tuple[Usuario, int], Tuple[Usuario, int, Dict[str, str]]
     """
     if connexion.request.is_json:
-        usuario = Usuario.from_dict(connexion.request.get_json())  # noqa: E501
-    return 'do some magic!'
+        # Obtener los datos JSON del request
+        datos_usuario = connexion.request.get_json()
+
+        try:
+            # Buscar el usuario en la base de datos por su ID
+            usuario_bd = Usuario.query.filter_by(id_usuario=id_usuario).first()# Si no se encuentra, lanza una excepción
+
+            # Actualizar solo los campos que se envían en el JSON
+            if 'email' in datos_usuario:
+                usuario_bd.email = datos_usuario['email']
+            if 'password' in datos_usuario:
+                # En caso de que se envíe una nueva contraseña, podría ser un hash en la base de datos
+                usuario_bd.password = datos_usuario['password']
+            if 'metodo_pago' in datos_usuario:
+                usuario_bd.metodo_pago = datos_usuario['metodo_pago']
+            if 'status' in datos_usuario:
+                usuario_bd.status = datos_usuario['status']
+            if 'perfiles' in datos_usuario:
+                usuario_bd.perfiles = datos_usuario['perfiles']
+
+            # Confirmar los cambios en la base de datos
+            
+            db.session.commit()
+
+            # Retornar el usuario actualizado
+            return jsonify(usuario_bd.to_dict()), 200  # Puedes usar un método to_dict() si lo tienes en tu modelo
+
+        except Exception as e:
+            # Manejo de otros errores genéricos
+            return {"error": f"Error al actualizar el usuario: {str(e)}"}, 500
 
 
 def upload_imagen(id_usuario, nombre_perfil, request_body):  # noqa: E501

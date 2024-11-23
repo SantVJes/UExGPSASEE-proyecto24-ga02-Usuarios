@@ -37,7 +37,8 @@
 			"name": "Obtener los perfiles de los Usuarios",
 			"request": {
 				"method": "GET",
-				"header": []
+				"header": [],
+				"url": "http://127.0.0.1:8080/usuario/2/Perfiles"
 			},
 			"response": []
 		},
@@ -46,7 +47,7 @@
 			"request": {
 				"method": "DELETE",
 				"header": [],
-				"url": "http://127.0.0.1:8080/usuario/1/valor2"
+				"url": "http://127.0.0.1:8080/usuario/2/perfil2"
 			},
 			"response": []
 		},
@@ -57,7 +58,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"nombre_perfil\": \"perfil4\",\n  \"campo_1\": \"valor_1\",\n  \"campo_2\": \"valor_2\"\n}\n",
+					"raw": "{\n  \"nombre_perfil\": \"perfil2\",\n  \"campo_1\": \"valor_1\",\n  \"campo_2\": \"valor_2\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -73,7 +74,7 @@
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": "/usuario/{idUsuario}/{nombrePerfil}:"
+				"url": "http://127.0.0.1:8080/usuario/2/perfil2"
 			},
 			"response": []
 		},
@@ -84,7 +85,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"campo_1\": \"valor_2s\",\n  \"campo_2\": \"valor_1\"\n}\n",
+					"raw": "{\n  \"campo_1\": \"valor_2ssw\",\n  \"campo_2\": \"valor_1s\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -96,13 +97,31 @@
 			"response": []
 		},
 		{
-			"name": "New Request",
+			"name": "Elimina un usuario",
 			"request": {
 				"method": "DELETE",
 				"header": [],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n  \"email\": \"user@example.com\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:8080/usuario/1"
+			},
+			"response": []
+		},
+		{
+			"name": "Actualiza la info de un usuario",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"nuevoemail@example.com\",\n  \"metodo_pago\": \"tarjeta_credito\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
