@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import connexion
+import os
 from openapi_server import encoder
 from flask_sqlalchemy import SQLAlchemy
 from openapi_server.controllers.usuario_controller import import_db_controller
@@ -18,8 +19,12 @@ def main():
         pythonic_params=True
     )
 
-    # Configura la URL de la base de datos PostgreSQL para SQLAlchemy y desactiva el seguimiento de modificaciones para mejorar el rendimiento.
-    app.app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:12345@localhost:5433/Usuarios'
+    db_password = os.getenv('DB_PASSWORD')
+  
+    app.app.config['SQLALCHEMY_DATABASE_URI'] = (
+        f"postgresql://postgres:{db_password}@localhost:5432/Contenidos"
+    )
+    
     app.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Inicializa la instancia de SQLAlchemy, vinculándola a la aplicación Connexion.

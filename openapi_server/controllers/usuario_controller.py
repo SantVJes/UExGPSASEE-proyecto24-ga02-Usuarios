@@ -12,9 +12,10 @@ from sqlalchemy.exc import IntegrityError
 from flask_sqlalchemy import SQLAlchemy
 from flask import jsonify, request, render_template, make_response
 
+RETUN = "do so magic"
+USER = "error: Usuario no encontrado"
 db = SQLAlchemy()
-
-def import_db_controller(database):
+def import_db_controller():
     global db
 
 def post_iniciar_sesion():
@@ -62,7 +63,8 @@ def add_favorito(id_usuario, nombre_perfil, body):  # noqa: E501
 
     :rtype: Union[None, Tuple[None, int], Tuple[None, int, Dict[str, str]]
     """
-    return 'do some magic!'
+    return RETUN
+
 
 
 def add_perfil(id_usuario):  # noqa: E501
@@ -86,7 +88,7 @@ def add_perfil(id_usuario):  # noqa: E501
         
         # Verificar si el usuario existe
         if not usuario:
-            return jsonify({"error": "Usuario no encontrado"}), 404
+            return USER, 404
         
         # Crear el nuevo perfil sin el nombre
         perfil_sin_nombre = {key: value for key, value in nuevoperfil.items() if key != "nombre_perfil"}
@@ -195,7 +197,7 @@ def delete_perfil(id_usuario, nombre_perfil):  # noqa: E501
         
         # Verificar si el usuario existe
         if not usuario:
-            return jsonify({"error": "Usuario no encontrado"}), 404
+            return USER, 404
 
         # Verificar si el perfil a eliminar existe en el usuario
         if nombre_perfil not in usuario.perfiles:
@@ -252,7 +254,7 @@ def delete_usuario(id_usuario):  # noqa: E501
 
         # Verificar si el usuario existe
         if usuario is None:
-            return {"error": "Usuario no encontrado"}, 404
+            return USER, 404
 
         # Comparar el email recibido con el del usuario a eliminar
         if usuario.email != email:
@@ -289,7 +291,7 @@ def get_all_perfiles(id_usuario):  # noqa: E501
         
         # Verificar si el usuario existe
         if not usuario:
-            return jsonify({"error": "Usuario no encontrado"}), 404
+            return USER, 404
         
         # Verificar si el usuario tiene perfiles
         if not usuario.perfiles:
@@ -340,7 +342,7 @@ def get_all_usuarios():  # noqa: E501
     
     
     
-    return 'do some magic!'
+    return RETUN
 
 
 def get_favoritos(id_usuario, nombre_perfil):  # noqa: E501
@@ -355,7 +357,7 @@ def get_favoritos(id_usuario, nombre_perfil):  # noqa: E501
 
     :rtype: Union[List[int], Tuple[List[int], int], Tuple[List[int], int, Dict[str, str]]
     """
-    return 'do some magic!'
+    return RETUN
 
 
 def get_perfil(id_usuario, nombre_perfil):  # noqa: E501
@@ -376,7 +378,7 @@ def get_perfil(id_usuario, nombre_perfil):  # noqa: E501
 
         # Verificar si el usuario existe
         if not usuario:
-            return jsonify({"error": "Usuario no encontrado"}), 404
+            return USER, 404
 
         # Verificar si el usuario tiene perfiles y si el perfil especificado existe
         if not usuario.perfiles or nombre_perfil not in usuario.perfiles:
@@ -410,7 +412,7 @@ def get_usuario_by_id(id_usuario):  # noqa: E501
 
     :rtype: Union[Usuario, Tuple[Usuario, int], Tuple[Usuario, int, Dict[str, str]]
     """
-    return 'do some magic!'
+    return RETUN
 
 
 def update_perfil(id_usuario, nombre_perfil):  # noqa: E501
@@ -436,7 +438,7 @@ def update_perfil(id_usuario, nombre_perfil):  # noqa: E501
         
         # Verificar si el usuario existe
         if not usuario:
-            return jsonify({"error": "Usuario no encontrado"}), 404
+            return USER, 404
 
         # Verificar si el perfil especificado existe en los perfiles del usuario
         if not usuario.perfiles or nombre_perfil not in usuario.perfiles:
@@ -534,4 +536,4 @@ def upload_imagen(id_usuario, nombre_perfil, request_body):  # noqa: E501
 
     :rtype: Union[List[str], Tuple[List[str], int], Tuple[List[str], int, Dict[str, str]]
     """
-    return 'do some magic!'
+    return RETUN
