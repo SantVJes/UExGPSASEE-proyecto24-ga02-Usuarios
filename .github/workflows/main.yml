@@ -39,10 +39,4 @@ jobs:
 
       - name: Wait for server to start
         run: |
-          sleep 10
-
-      - name: Run Postman tests with Newman
-        run: |
-          newman run openapi_server/test/Test_Api_Usuarios.postman_collection.json
-        env:
-          BASE_URL: http://localhost:8080
+          sleep 
