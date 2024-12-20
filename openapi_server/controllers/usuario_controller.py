@@ -15,7 +15,7 @@ from flask import jsonify, request, render_template, make_response
 RETUN = "do so magic"
 USER = "error: Usuario no encontrado"
 db = SQLAlchemy()
-def import_db_controller(database):
+def import_db_controller():
     global db
 
 def post_iniciar_sesion():
