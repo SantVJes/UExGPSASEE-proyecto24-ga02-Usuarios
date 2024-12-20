@@ -63,8 +63,7 @@ def add_favorito(id_usuario, nombre_perfil, body):  # noqa: E501
 
     :rtype: Union[None, Tuple[None, int], Tuple[None, int, Dict[str, str]]
     """
-    return RETUN
-
+    return RETUN 
 
 
 def add_perfil(id_usuario):  # noqa: E501
